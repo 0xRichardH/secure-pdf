@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/big"
 	"os"
+	"path"
 	"strings"
 
 	"fyne.io/fyne/v2"
@@ -47,7 +48,7 @@ func main() {
 					return
 				}
 
-				err = handlPDF(path, "/Users/haoxilu/Downloads/test_encrypted.pdf", upwd, opwd)
+				err = handlPDF(path, upwd, opwd)
 				if err != nil {
 					dialog.ShowError(err, w)
 					return
@@ -123,7 +124,14 @@ func isPDF(filename string) bool {
 	return strings.HasSuffix(strings.ToLower(filename), ".pdf")
 }
 
-func handlPDF(inputFile, outputFile, userPassword, ownerPassword string) error {
+func handlPDF(inputFile, userPassword, ownerPassword string) error {
+	// get the outputFile filename
+	inputFileName := path.Base(inputFile)
+	inputFileDir := path.Dir(inputFile)
+	inputFileExt := path.Ext(inputFile)
+	outputFileName := strings.TrimSuffix(inputFileName, inputFileExt)
+	outputFile := path.Join(inputFileDir, outputFileName+"_encrypted"+inputFileExt)
+
 	// create temporary file (with watermark)
 	temp_file, err := os.CreateTemp(os.TempDir(), "secure_pdf_input_file")
 	if err != nil {
