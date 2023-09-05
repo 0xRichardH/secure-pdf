@@ -39,14 +39,16 @@ func main() {
 					return
 				}
 
-				err = handlPDF(path, "/Users/haoxilu/Downloads/test_encrypted.pdf", "upwd", "opwd")
+				upwd, opwd := generatePasswords()
+				err = handlPDF(path, "/Users/haoxilu/Downloads/test_encrypted.pdf", upwd, opwd)
 				if err != nil {
 					dialog.ShowError(err, w)
 					return
 				}
 
-				text.SetText(path)
-				alert("Done.", w)
+				pwd_text := generatePasswordsText(upwd, opwd)
+				setTextToClipboard(pwd_text, w)
+				alert(pwd_text, w)
 			}, w).Show()
 		}),
 	))
@@ -57,6 +59,25 @@ func main() {
 
 func alert(message string, w fyne.Window) {
 	dialog.ShowInformation("Alert", message, w)
+}
+
+func setTextToClipboard(text string, w fyne.Window) {
+	w.Clipboard().SetContent(text)
+}
+
+func generatePasswords() (string, string) {
+	return "upwd", "opwd"
+}
+
+func generatePasswordsText(upwd, opwd string) string {
+	str_builder := strings.Builder{}
+	str_builder.WriteString("You have copied password to your clipboard.\n")
+	str_builder.WriteString("User Password: ")
+	str_builder.WriteString(upwd)
+	str_builder.WriteString("\n")
+	str_builder.WriteString("Owner Password: ")
+	str_builder.WriteString(opwd)
+	return str_builder.String()
 }
 
 func isPDF(filename string) bool {
