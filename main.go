@@ -1,7 +1,9 @@
 package main
 
 import (
+	"crypto/rand"
 	"fmt"
+	"math/big"
 	"os"
 	"strings"
 
@@ -39,7 +41,12 @@ func main() {
 					return
 				}
 
-				upwd, opwd := generatePasswords()
+				upwd, opwd, err := generatePasswords()
+				if err != nil {
+					dialog.ShowError(err, w)
+					return
+				}
+
 				err = handlPDF(path, "/Users/haoxilu/Downloads/test_encrypted.pdf", upwd, opwd)
 				if err != nil {
 					dialog.ShowError(err, w)
@@ -65,8 +72,40 @@ func setTextToClipboard(text string, w fyne.Window) {
 	w.Clipboard().SetContent(text)
 }
 
-func generatePasswords() (string, string) {
-	return "upwd", "opwd"
+func generatePasswords() (string, string, error) {
+	upwd, err := generatePassword(12)
+	if err != nil {
+		return "", "", fmt.Errorf("generate user password: %w", err)
+	}
+
+	opwd, err := generatePassword(16)
+	if err != nil {
+		return "", "", fmt.Errorf("generate owner password: %w", err)
+	}
+
+	return upwd, opwd, nil
+}
+
+func generatePassword(length int) (string, error) {
+	charset := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()"
+
+	password := make([]byte, length)
+
+	// Determine the character set length.
+	charsetLength := big.NewInt(int64(len(charset)))
+
+	for i := 0; i < length; i++ {
+		// Generate a random index within the character set length.
+		index, err := rand.Int(rand.Reader, charsetLength)
+		if err != nil {
+			return "", fmt.Errorf("error generating random number: %w", err)
+		}
+
+		// Use the random index to select a character from the character set.
+		password[i] = charset[index.Int64()]
+	}
+
+	return string(password), nil
 }
 
 func generatePasswordsText(upwd, opwd string) string {
