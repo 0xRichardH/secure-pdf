@@ -1,5 +1,8 @@
 ## Secure PDF
 
+![image](https://github.com/0x4richard/secure-pdf/assets/7600503/9e1fb122-7278-460c-a813-876c2acb9092)
+
+
 - packaging for desktop
 
   https://developer.fyne.io/started/packaging
